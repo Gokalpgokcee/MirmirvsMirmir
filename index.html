@@ -3,31 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mırmır Savaşları - Stratejik Kedi Kart Oyunu</title>
+    <title>Mırmır Savaşları: Zeka Arenası v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
         body { font-family: 'Poppins', sans-serif; }
-        .card-hover:hover:not(.opacity-50) { transform: translateY(-6px); }
+        .card-active { transition: all 0.2s ease-in-out; }
+        .card-active:hover { transform: translateY(-6px) scale(1.02); }
+        .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); }
+        .glow-blue { box-shadow: 0 0 15px rgba(59, 130, 246, 0.25); }
+        .glow-amber { box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); }
+        .glow-emerald { box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-3">
 
-    <div class="w-full max-w-4xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 text-center">
+    <div class="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-5 md:p-8 text-center relative overflow-hidden">
         
-        <h1 class="text-3xl font-extrabold text-amber-400 mb-1">🐾 Mırmır Savaşları: Zeka Arenası 🐾</h1>
-        <p class="text-slate-400 text-sm mb-6">Stratejini konuştur, hamleni planla, kedini hayatta tut!</p>
+        <!-- Başlık -->
+        <div class="mb-6">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
+                🐾 Mırmır Savaşları v2 🐾
+            </h1>
+            <p class="text-slate-400 text-xs md:text-sm mt-1">BugHunter Onaylı Denge ve Strateji Güncellemesi</p>
+        </div>
 
         <!-- Lobi Alanı -->
-        <div id="lobby" class="max-w-md mx-auto space-y-4">
-            <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600">
-                <h2 class="text-lg font-semibold mb-3 text-amber-300">Oda İşlemleri</h2>
-                <button id="create-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg mb-4">
-                    🎮 Oda Kur
+        <div id="lobby" class="max-w-md mx-auto space-y-4 my-8">
+            <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/60 shadow-xl">
+                <h2 class="text-base font-semibold mb-4 text-amber-300">Oda İşlemleri</h2>
+                <button id="create-btn" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-extrabold py-3.5 rounded-xl transition shadow-lg mb-4 text-sm">
+                    🎮 Yeni Oda Kur
                 </button>
                 <div class="flex gap-2">
-                    <input type="text" id="roomCodeInput" placeholder="Oda Kodu (Örn: 4821)" class="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400">
-                    <button id="join-btn" class="bg-emerald-600 hover:bg-emerald-700 font-bold px-6 py-3 rounded-xl transition shadow-lg">
+                    <input type="text" id="roomCodeInput" placeholder="Oda Kodu (Örn: 4821)" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-400">
+                    <button id="join-btn" class="bg-emerald-600 hover:bg-emerald-700 font-bold px-5 py-3 rounded-xl transition text-sm shadow-lg">
                         🚀 Katıl
                     </button>
                 </div>
@@ -35,149 +45,95 @@
         </div>
 
         <!-- Oyun Alanı -->
-        <div id="game-area" class="hidden space-y-6">
-            <!-- Durum Çubuğu -->
-            <div class="flex justify-between items-center bg-slate-900/80 p-4 rounded-xl border border-slate-700 text-sm">
-                <div>Oda Kodu: <span id="display-room" class="font-bold text-amber-400">----</span></div>
-                <div class="flex gap-4">
-                    <span class="text-red-400 font-semibold">Rakip HP: <span id="opponent-hp">100</span></span>
-                    <span class="text-emerald-400 font-semibold">Senin HP: <span id="my-hp">100</span></span>
+        <div id="game-area" class="hidden space-y-5">
+            
+            <!-- Can & Stat Çubuğu -->
+            <div class="grid grid-cols-2 gap-3 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 text-xs md:text-sm">
+                <!-- Sen -->
+                <div class="text-left bg-slate-900/90 p-3 rounded-xl border border-emerald-500/30">
+                    <div class="text-emerald-400 font-bold mb-1 flex justify-between">
+                        <span>🐱 Senin Kedin</span>
+                        <span id="my-dodge-indicator" class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded hidden">💨 Kaçınma Aktif</span>
+                    </div>
+                    <div class="text-lg md:text-xl font-extrabold text-white" id="my-hp-text">100 / 100</div>
+                    <div class="text-xs text-blue-300 mt-0.5">🛡️ Kalkan: <span id="my-shield-text" class="font-bold">0</span></div>
+                </div>
+
+                <!-- Rakip -->
+                <div class="text-right bg-slate-900/90 p-3 rounded-xl border border-red-500/30">
+                    <div class="text-red-400 font-bold mb-1 flex justify-between flex-row-reverse">
+                        <span>😾 Kardeşinin Kedisi</span>
+                        <span id="opp-dodge-indicator" class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded hidden">💨 Kaçınma Aktif</span>
+                    </div>
+                    <div class="text-lg md:text-xl font-extrabold text-white" id="opp-hp-text">100 / 100</div>
+                    <div class="text-xs text-blue-300 mt-0.5">🛡️ Kalkan: <span id="opp-shield-text" class="font-bold">0</span></div>
                 </div>
             </div>
 
-            <!-- Durum Logu -->
-            <div id="log" class="bg-slate-900 p-3 rounded-lg text-amber-300/90 text-sm font-medium border border-slate-700/50">
-                Savaş alanı yükleniyor...
+            <!-- Bilgilendirme Kutusu -->
+            <div id="turn-banner" class="p-3 rounded-xl font-semibold text-xs md:text-sm transition-all duration-300 bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                Süreç bekleniyor...
             </div>
 
-            <!-- Kart Kategorileri -->
-            <div class="text-left space-y-4">
-                <h3 class="text-lg font-bold text-slate-300 border-b border-slate-700 pb-2">🎴 Taktiksel Kart Destesi</h3>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Kart Kataloğu -->
+            <div class="text-left space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <h3 class="text-xs md:text-sm font-bold text-slate-300 uppercase tracking-wider">🎴 Savaş Kartları</h3>
+                    <span class="text-[11px] text-slate-500">Oda: <strong id="display-room" class="text-amber-400">----</strong></span>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     
-                    <!-- 1. SALDIRI KARTLARI -->
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider">⚔️ Saldırı</h4>
-                        
-                        <!-- Kızgın Mırmır -->
-                        <div id="card-mirmir" class="card-item card-hover bg-slate-900 border border-red-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="attack" data-val="25" data-id="mirmir">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">😾</span>
-                                    <span class="text-[10px] bg-red-950 text-red-300 px-2 py-0.5 rounded border border-red-800" id="cd-mirmir">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-red-300 text-sm mt-1">Kızgın Mırmır</h5>
-                                <p class="text-[11px] text-slate-400">Standart öfke tırnağı.</p>
+                    <!-- 1. SALDIRI -->
+                    <div id="card-mirmir" class="card-item card-active bg-slate-950 border border-red-500/40 glow-red p-3 rounded-xl cursor-pointer flex flex-col justify-between h-36" data-type="attack" data-val="30" data-id="mirmir">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-2xl">😾</span>
+                                <span class="text-[10px] font-bold bg-slate-900 text-red-400 px-2 py-0.5 rounded border border-red-800/50" id="cd-mirmir">Hazır</span>
                             </div>
-                            <div class="text-[11px] font-semibold text-red-400">Etki: -25 Rakip HP</div>
+                            <h4 class="font-bold text-red-300 text-xs md:text-sm mt-1">Kızgın Mırmır</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Tırmık atar.</p>
                         </div>
-
-                        <!-- Çevik Pati -->
-                        <div id="card-patis" class="card-item card-hover bg-slate-900 border border-red-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="attack" data-val="15" data-id="patis">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">🐾⚡</span>
-                                    <span class="text-[10px] bg-red-950 text-red-300 px-2 py-0.5 rounded border border-red-800" id="cd-patis">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-red-300 text-sm mt-1">Hızlı Pençe</h5>
-                                <p class="text-[11px] text-slate-400">Az hasar ama hızlı dolar.</p>
-                            </div>
-                            <div class="text-[11px] font-semibold text-red-400">Etki: -15 Rakip HP</div>
-                        </div>
+                        <div class="text-[11px] font-bold text-red-400">⚔️ -30 Hasar</div>
                     </div>
 
-                    <!-- 2. SAVUNMA KARTLARI -->
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider">🛡️ Savunma</h4>
-                        
-                        <!-- Tembel Tıfıl (Zırh) -->
-                        <div id="card-tifil" class="card-item card-hover bg-slate-900 border border-blue-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="defense" data-val="20" data-id="tifil">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">🛡️💤</span>
-                                    <span class="text-[10px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800" id="cd-tifil">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-blue-300 text-sm mt-1">Sert Kabuk</h5>
-                                <p class="text-[11px] text-slate-400">Gelen hasarı azaltmak için zırh kazan.</p>
+                    <!-- 2. SAVUNMA -->
+                    <div id="card-tifil" class="card-item card-active bg-slate-950 border border-blue-500/40 glow-blue p-3 rounded-xl cursor-pointer flex flex-col justify-between h-36" data-type="defense" data-val="25" data-id="tifil">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-2xl">🛡️</span>
+                                <span class="text-[10px] font-bold bg-slate-900 text-blue-400 px-2 py-0.5 rounded border border-blue-800/50" id="cd-tifil">Hazır</span>
                             </div>
-                            <div class="text-[11px] font-semibold text-blue-400">Etki: +20 Zırh (Kalkan)</div>
+                            <h4 class="font-bold text-blue-300 text-xs md:text-sm mt-1">Sert Kabuk</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Sadece 1 tur korur.</p>
                         </div>
-
-                        <!-- Koltuk Altı Saklanması -->
-                        <div id="card-koltuk" class="card-item card-hover bg-slate-900 border border-blue-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="defense" data-val="30" data-id="koltuk">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">🛋️🐱</span>
-                                    <span class="text-[10px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800" id="cd-koltuk">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-blue-300 text-sm mt-1">Koltuk Sığınağı</h5>
-                                <p class="text-[11px] text-slate-400">Güçlü bir kalkan barikatı kurar.</p>
-                            </div>
-                            <div class="text-[11px] font-semibold text-blue-400">Etki: +30 Zırh</div>
-                        </div>
+                        <div class="text-[11px] font-bold text-blue-400">🛡️ +25 Kalkan</div>
                     </div>
 
-                    <!-- 3. KAÇINMA (DODGE) KARTLARI -->
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">💨 Kaçınma</h4>
-                        
-                        <!-- Ani Sıçrayış -->
-                        <div id="card-sicrayis" class="card-item card-hover bg-slate-900 border border-amber-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="dodge" data-val="1" data-id="sicrayis">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">🐈💨</span>
-                                    <span class="text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800" id="cd-sicrayis">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-amber-300 text-sm mt-1">Ani Sıçrayış</h5>
-                                <p class="text-[11px] text-slate-400">Rakibin sonraki atağını tamamen boşa çıkarır.</p>
+                    <!-- 3. KAÇINMA -->
+                    <div id="card-sicrayis" class="card-item card-active bg-slate-950 border border-amber-500/40 glow-amber p-3 rounded-xl cursor-pointer flex flex-col justify-between h-36" data-type="dodge" data-val="1" data-id="sicrayis">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-2xl">💨</span>
+                                <span class="text-[10px] font-bold bg-slate-900 text-amber-400 px-2 py-0.5 rounded border border-amber-800/50" id="cd-sicrayis">Hazır</span>
                             </div>
-                            <div class="text-[11px] font-semibold text-amber-400">Etki: Hasar Almazlık</div>
+                            <h4 class="font-bold text-amber-300 text-xs md:text-sm mt-1">Ani Sıçrayış</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Sonraki atağı boşa çıkarır.</p>
                         </div>
-
-                        <!-- Gece Hayaleti -->
-                        <div id="card-gece" class="card-item card-hover bg-slate-900 border border-amber-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="dodge" data-val="1" data-id="gece">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">🌙👻</span>
-                                    <span class="text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800" id="cd-gece">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-amber-300 text-sm mt-1">Karanlık Gölge</h5>
-                                <p class="text-[11px] text-slate-400">Gölgeye karışarak rakibi şaşırtır.</p>
-                            </div>
-                            <div class="text-[11px] font-semibold text-amber-400">Etki: Hasar Almazlık</div>
-                        </div>
+                        <div class="text-[11px] font-bold text-amber-400">💨 Hasarsızlık</div>
                     </div>
 
-                    <!-- 4. CAN & MAX HP KARTLARI -->
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">💚 Can & Max HP</h4>
-                        
-                        <!-- Süt İçme (Heal) -->
-                        <div id="card-sut" class="card-item card-hover bg-slate-900 border border-emerald-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="heal" data-val="20" data-id="sut">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">🥛🐱</span>
-                                    <span class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800" id="cd-sut">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-emerald-300 text-sm mt-1">Ilık Süt</h5>
-                                <p class="text-[11px] text-slate-400">Canını yeniler.</p>
+                    <!-- 4. CAN YENİLEME -->
+                    <div id="card-sut" class="card-item card-active bg-slate-950 border border-emerald-500/40 glow-emerald p-3 rounded-xl cursor-pointer flex flex-col justify-between h-36" data-type="heal" data-val="35" data-id="sut">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-2xl">🥛</span>
+                                <span class="text-[10px] font-bold bg-slate-900 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/50" id="cd-sut">Hazır</span>
                             </div>
-                            <div class="text-[11px] font-semibold text-emerald-400">Etki: +20 Can (HP)</div>
+                            <h4 class="font-bold text-emerald-300 text-xs md:text-sm mt-1">Ilık Süt Ziyafeti</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Büyük can yenilemesi.</p>
                         </div>
-
-                        <!-- Mama Ziyafeti (Max Can Artırma) -->
-                        <div id="card-mama" class="card-item card-hover bg-slate-900 border border-emerald-500/40 p-3 rounded-xl cursor-pointer transition shadow-md flex flex-col justify-between h-36" data-type="maxhp" data-val="15" data-id="mama">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <span class="text-xl">🍲✨</span>
-                                    <span class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800" id="cd-mama">Hazır</span>
-                                </div>
-                                <h5 class="font-bold text-emerald-300 text-sm mt-1">Özel Mama Ziyafeti</h5>
-                                <p class="text-[11px] text-slate-400">Maksimum can sınırını ve mevcut canını artırır!</p>
-                            </div>
-                            <div class="text-[11px] font-semibold text-emerald-400">Etki: +15 Max HP & Can</div>
-                        </div>
+                        <div class="text-[11px] font-bold text-emerald-400">💚 +35 Can</div>
                     </div>
 
                 </div>
@@ -185,7 +141,7 @@
         </div>
     </div>
 
-    <!-- Firebase ve Stratejik Oyun Motoru -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
         import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
@@ -207,8 +163,8 @@
         let currentRoom = null;
         let myRole = null;
         
-        // Cooldown takip sözlüğü (Her kartın bekleme süresi tur cinsinden)
-        let cooldowns = { mirmir: 0, patis: 0, tifil: 0, koltuk: 0, sicrayis: 0, gece: 0, sut: 0, mama: 0 };
+        // Gerçek Tur Bazlı Cooldown Takibi
+        let cooldowns = { mirmir: 0, tifil: 0, sicrayis: 0, sut: 0 };
 
         document.getElementById('create-btn').addEventListener('click', () => {
             currentRoom = Math.floor(1000 + Math.random() * 9000).toString();
@@ -216,16 +172,13 @@
 
             const roomRef = ref(db, 'rooms/' + currentRoom);
             set(roomRef, {
-                hostHp: 100,
-                guestHp: 100,
-                hostMaxHp: 100,
-                guestMaxHp: 100,
-                hostShield: 0,
-                guestShield: 0,
-                hostDodge: false,
-                guestDodge: false,
+                hostHp: 100, guestHp: 100,
+                hostMaxHp: 100, guestMaxHp: 100,
+                hostShield: 0, guestShield: 0,
+                hostDodge: false, guestDodge: false,
                 turn: 'host',
-                lastAction: 'Oda kuruldu. Kardeşinin girmesi bekleniyor.'
+                lastActor: 'system',
+                actionText: 'Oda kuruldu. Kardeşinin odaya girmesi bekleniyor.'
             }).then(() => {
                 initGameUI();
                 listenRoom();
@@ -234,10 +187,7 @@
 
         document.getElementById('join-btn').addEventListener('click', () => {
             const code = document.getElementById('roomCodeInput').value.trim();
-            if (!code) {
-                alert('Lütfen bir oda kodu gir!');
-                return;
-            }
+            if (!code) return alert('Lütfen oda kodunu gir!');
 
             currentRoom = code;
             myRole = 'guest';
@@ -246,7 +196,8 @@
             get(roomRef).then((snapshot) => {
                 if (snapshot.exists()) {
                     update(roomRef, {
-                        lastAction: 'Kardeşin odaya katıldı! Zeka savaşı başlasın!'
+                        lastActor: 'system',
+                        actionText: 'Kardeşin odaya katıldı! Savaş başladı.'
                     });
                     initGameUI();
                     listenRoom();
@@ -268,39 +219,68 @@
                 const data = snapshot.val();
                 if (!data) return;
 
-                if (myRole === 'host') {
-                    document.getElementById('my-hp').innerText = `${data.hostHp}/${data.hostMaxHp} (Kalkan: ${data.hostShield})`;
-                    document.getElementById('opponent-hp').innerText = `${data.guestHp}/${data.guestMaxHp}`;
+                // Değerleri Ekrana Yazma
+                let myHp = myRole === 'host' ? data.hostHp : data.guestHp;
+                let myMaxHp = myRole === 'host' ? data.hostMaxHp : data.guestMaxHp;
+                let myShield = myRole === 'host' ? data.hostShield : data.guestShield;
+                let myDodge = myRole === 'host' ? data.hostDodge : data.guestDodge;
+
+                let oppHp = myRole === 'host' ? data.guestHp : data.hostHp;
+                let oppMaxHp = myRole === 'host' ? data.guestMaxHp : data.hostMaxHp;
+                let oppShield = myRole === 'host' ? data.guestShield : data.hostShield;
+                let oppDodge = myRole === 'host' ? data.guestDodge : data.hostDodge;
+
+                document.getElementById('my-hp-text').innerText = `${myHp} / ${myMaxHp}`;
+                document.getElementById('my-shield-text').innerText = myShield;
+                document.getElementById('my-dodge-indicator').classList.toggle('hidden', !myDodge);
+
+                document.getElementById('opp-hp-text').innerText = `${oppHp} / ${oppMaxHp}`;
+                document.getElementById('opp-shield-text').innerText = oppShield;
+                document.getElementById('opp-dodge-indicator').classList.toggle('hidden', !oppDodge);
+
+                // Dinamik Log Yazısı (Sen / Kardeşin Ayrımı)
+                let banner = document.getElementById('turn-banner');
+                let isMyTurn = (data.turn === myRole);
+
+                let logMsg = "";
+                if (data.lastActor === 'system') {
+                    logMsg = data.actionText;
+                } else if (data.lastActor === myRole) {
+                    logMsg = `Sen ${data.actionText}`;
                 } else {
-                    document.getElementById('my-hp').innerText = `${data.guestHp}/${data.guestMaxHp} (Kalkan: ${data.guestShield})`;
-                    document.getElementById('opponent-hp').innerText = `${data.hostHp}/${data.hostMaxHp}`;
+                    logMsg = `Kardeşin ${data.actionText}`;
                 }
 
-                let isMyTurn = (data.turn === myRole);
-                let turnText = isMyTurn ? "👉 SIRA SENDE! Stratejik hamleni yap." : "⏳ Rakibin hamlesi bekleniyor...";
-                document.getElementById('log').innerText = `${data.lastAction} | ${turnText}`;
+                if (isMyTurn) {
+                    banner.innerText = `👉 SIRA SENDE! (${logMsg})`;
+                    banner.className = "p-3 rounded-xl font-bold text-xs md:text-sm bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                } else {
+                    banner.innerText = `⏳ KARDEŞİNİN SIRASI... (${logMsg})`;
+                    banner.className = "p-3 rounded-xl font-medium text-xs md:text-sm bg-slate-800 text-slate-400 border border-slate-700";
+                }
 
+                // Oyun Bitiş Kontrolü
                 if (data.hostHp <= 0 || data.guestHp <= 0) {
-                    alert('Oyun bitti! Kedi öldüçe kaybedersiniz!');
+                    let winner = data.hostHp > 0 ? "Odayı Kuran Kazandı!" : "Katılan Kazandı!";
+                    alert(`Oyun Bitti! ${winner}`);
                     remove(roomRef);
                     location.reload();
                 }
             });
         }
 
-        // Kartlara tıklama olayları
+        // Kart Tıklama İşlemleri
         document.querySelectorAll('.card-item').forEach(card => {
             card.addEventListener('click', () => {
                 const cardId = card.getAttribute('data-id');
                 
                 if (cooldowns[cardId] > 0) {
-                    alert(`Bu kart henüz hazır değil! ${cooldowns[cardId]} tur beklemelisin.`);
-                    return;
+                    return alert(`Bu kart soğuma sürecinde! ${cooldowns[cardId]} tur daha beklemelisin.`);
                 }
 
                 const cardType = card.getAttribute('data-type');
                 const cardValue = parseInt(card.getAttribute('data-val'));
-                const cardName = card.querySelector('h5').innerText;
+                const cardName = card.querySelector('h4').innerText;
 
                 playCard(cardName, cardType, cardValue, cardId);
             });
@@ -314,97 +294,81 @@
                 const data = snapshot.val();
 
                 if (data.turn !== myRole) {
-                    alert("Şu an senin sıran değil!");
-                    return;
+                    return alert("Şu an senin sıran değil!");
                 }
 
                 let updates = {};
                 let nextTurn = (myRole === 'host') ? 'guest' : 'host';
                 updates.turn = nextTurn;
+                updates.lastActor = myRole;
 
-                // Roller üzerinden değişkenleri belirleyelim
                 let myHp = myRole === 'host' ? data.hostHp : data.guestHp;
                 let oppHp = myRole === 'host' ? data.guestHp : data.hostHp;
                 let myMaxHp = myRole === 'host' ? data.hostMaxHp : data.guestMaxHp;
-                let oppMaxHp = myRole === 'host' ? data.guestMaxHp : data.hostMaxHp;
                 let myShield = myRole === 'host' ? data.hostShield : data.guestShield;
                 let oppShield = myRole === 'host' ? data.guestShield : data.hostShield;
                 let oppDodge = myRole === 'host' ? data.guestDodge : data.hostDodge;
 
-                // Kart Türüne Göre Mantık (Zeka & Strateji Hesaplamaları)
+                // TUR BAŞI SIFIRLAMALARI (Geçmiş turdan kalan kalkan erir)
+                myShield = 0;
+
                 if (type === 'attack') {
                     if (oppDodge) {
-                        // Rakip kaçınma (dodge) bastıysa saldırı boşa gider
-                        updates.lastAction = `Sen (${cardName}) oynadın ancak rakip kaçındı! (0 hasar)`;
+                        updates.actionText = `${cardName} kartını oynadı fakat karşı taraf sıçrayarak Kaçındı!`;
                         if (myRole === 'host') updates.guestDodge = false;
                         else updates.hostDodge = false;
                     } else {
-                        // Kalkan hesaplaması
-                        let finalDamage = value;
+                        let netDmg = value;
                         if (oppShield > 0) {
                             if (oppShield >= value) {
                                 oppShield -= value;
-                                finalDamage = 0;
+                                netDmg = 0;
                             } else {
-                                finalDamage -= oppShield;
+                                netDmg -= oppShield;
                                 oppShield = 0;
                             }
                         }
-                        oppHp = Math.max(0, oppHp - finalDamage);
-                        updates.lastAction = `Sen (${cardName}) ile ${value} saldırı yaptın! (Net hasar: ${finalDamage})`;
+                        oppHp = Math.max(0, oppHp - netDmg);
+                        updates.actionText = `${cardName} ile saldırdı! (${netDmg} Net Hasar Vurdu)`;
                     }
                 } 
                 else if (type === 'defense') {
-                    myShield += value;
-                    updates.lastAction = `Sen (${cardName}) kullandın ve +${value} kalkan (zırh) kazandın!`;
+                    myShield = value;
+                    updates.actionText = `${cardName} kullanarak +${value} Kalkan kazandı!`;
                 } 
                 else if (type === 'dodge') {
                     if (myRole === 'host') updates.hostDodge = true;
                     else updates.guestDodge = true;
-                    updates.lastAction = `Sen (${cardName}) kullanarak bir sonraki atağa karşı kaçınma pozisyonu aldın!`;
+                    updates.actionText = `${cardName} basarak kaçınma pozisyonu aldı!`;
                 } 
                 else if (type === 'heal') {
                     myHp = Math.min(myMaxHp, myHp + value);
-                    updates.lastAction = `Sen (${cardName}) içerek +${value} can kazandın!`;
-                } 
-                else if (type === 'maxhp') {
-                    myMaxHp += value;
-                    myHp += value;
-                    updates.lastAction = `Sen (${cardName}) ile kedinin Max Can sınırını +${value} artırdın!`;
+                    updates.actionText = `${cardName} içerek +${value} Can yeniledi!`;
                 }
 
-                // Güncellenen değerleri veritabanı objesine yaz
+                // Güncellemeleri Nesneye İşleme
                 if (myRole === 'host') {
-                    updates.hostHp = myHp;
-                    updates.guestHp = oppHp;
-                    updates.hostMaxHp = myMaxHp;
-                    updates.hostShield = myShield;
-                    updates.guestShield = oppShield;
+                    updates.hostHp = myHp; updates.guestHp = oppHp;
+                    updates.hostShield = myShield; updates.guestShield = oppShield;
                 } else {
-                    updates.guestHp = myHp;
-                    updates.hostHp = oppHp;
-                    updates.guestMaxHp = myMaxHp;
-                    updates.guestShield = myShield;
-                    updates.hostShield = oppShield;
+                    updates.guestHp = myHp; updates.hostHp = oppHp;
+                    updates.guestShield = myShield; updates.hostShield = oppShield;
                 }
 
-                // Oynanan karta 2-3 tur bekleme süresi ver
-                cooldowns[cardId] = 3;
-                updateCardVisuals();
+                // Kendi Cooldown'unu Artır
+                cooldowns[cardId] = 2; // Bu kart 2 Tur Bekleyecek
 
+                // Sıra Bize Her Geldiğinde (Tur atladıkça) Diğer Bekleyen Kartları 1 Eksilt
+                for (let key in cooldowns) {
+                    if (key !== cardId && cooldowns[key] > 0) {
+                        cooldowns[key]--;
+                    }
+                }
+                
+                updateCardVisuals();
                 update(roomRef, updates);
             });
         }
-
-        // Tur bazlı bekleme sürelerini azaltma
-        setInterval(() => {
-            for (let id in cooldowns) {
-                if (cooldowns[id] > 0) {
-                    cooldowns[id]--;
-                    updateCardVisuals();
-                }
-            }
-        }, 6000);
 
         function updateCardVisuals() {
             for (let id in cooldowns) {
@@ -413,11 +377,11 @@
                 if (!cdSpan || !cardEl) continue;
 
                 if (cooldowns[id] > 0) {
-                    cdSpan.innerText = `${cooldowns[id]} Tur`;
-                    cardEl.classList.add('opacity-50', 'cursor-not-allowed');
+                    cdSpan.innerText = `${cooldowns[id]} Tur Bekliyor`;
+                    cardEl.classList.add('opacity-40', 'cursor-not-allowed', 'filter', 'grayscale');
                 } else {
                     cdSpan.innerText = 'Hazır';
-                    cardEl.classList.remove('opacity-50', 'cursor-not-allowed');
+                    cardEl.classList.remove('opacity-40', 'cursor-not-allowed', 'filter', 'grayscale');
                 }
             }
         }
