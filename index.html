@@ -4,49 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mırmır Savaşları - Kedi Kart Oyunu</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS (Modern Arayüz ve GUI için) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .card-hover:hover { transform: translateY(-8px); }
+    </style>
 </head>
-<body>
-    <div class="game-container">
-        <h1>🐾 Mırmır Savaşları 🐾</h1>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 text-center">
         
+        <!-- Başlık -->
+        <h1 class="text-3xl font-extrabold text-amber-400 mb-2">🐾 Mırmır Savaşları 🐾</h1>
+        <p class="text-slate-400 text-sm mb-6">Kardeşinle kapış, kedini yaşat!</p>
+
         <!-- Lobi Alanı -->
-        <div id="lobby" class="card">
-            <h2>Oda İşlemleri</h2>
-            <button id="create-btn">Oda Kur</button>
-            <br><br>
-            <input type="text" id="roomCodeInput" placeholder="Oda Kodu Gir">
-            <button id="join-btn">Odaya Katıl</button>
+        <div id="lobby" class="space-y-4">
+            <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600">
+                <h2 class="text-lg font-semibold mb-3 text-amber-300">Oda İşlemleri</h2>
+                <button id="create-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg mb-4">
+                    🎮 Oda Kur
+                </button>
+                <div class="flex gap-2">
+                    <input type="text" id="roomCodeInput" placeholder="Oda Kodu (Örn: 4821)" class="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400">
+                    <button id="join-btn" class="bg-emerald-600 hover:bg-emerald-700 font-bold px-6 py-3 rounded-xl transition shadow-lg">
+                        🚀 Katıl
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Oyun Alanı (Başlangıçta gizli) -->
-        <div id="game-area" class="hidden">
-            <div class="stats-bar">
-                <span>Oda Kodu: <strong id="display-room">-</strong></span>
-                <br>
-                <span>Rakip Canı (HP): <strong id="opponent-hp">100</strong></span> | 
-                <span>Senin Canın (HP): <strong id="my-hp">100</strong></span>
-            </div>
-
-            <h3>Kartını Seç!</h3>
-            <div class="battlefield">
-                <div class="card-item" id="card-mirmir">
-                    <h3>Kızgın Mırmır</h3>
-                    <p>Güç: 35</p>
-                    <p>Öfke Tırnağı</p>
-                </div>
-                <div class="card-item" id="card-tifil">
-                    <h3>Tembel Tıfıl</h3>
-                    <p>Güç: 15</p>
-                    <p>Sert Kabuk</p>
+        <!-- Oyun Alanı (Başta Gizli) -->
+        <div id="game-area" class="hidden space-y-6">
+            <!-- Durum Çubuğu -->
+            <div class="flex justify-between items-center bg-slate-900/80 p-4 rounded-xl border border-slate-700 text-sm">
+                <div>Oda Kodu: <span id="display-room" class="font-bold text-amber-400">----</span></div>
+                <div class="flex gap-4">
+                    <span class="text-red-400 font-semibold">Rakip HP: <span id="opponent-hp">100</span></span>
+                    <span class="text-emerald-400 font-semibold">Senin HP: <span id="my-hp">100</span></span>
                 </div>
             </div>
 
-            <div id="log" class="card">Oda bekleniyor...</div>
+            <!-- Log / Durum Mesajı -->
+            <div id="log" class="bg-slate-900 p-3 rounded-lg text-amber-300/90 text-sm italic border border-slate-700/50">
+                Savaş alanı yükleniyor...
+            </div>
+
+            <!-- Kart Seçim Alanı -->
+            <div>
+                <h3 class="text-lg font-bold mb-4 text-slate-300">Saldırı Kartını Seç!</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    
+                    <!-- Kart 1: Kızgın Mırmır -->
+                    <div class="card-item card-hover bg-gradient-to-b from-red-900/60 to-slate-900 border-2 border-red-500/50 p-4 rounded-xl cursor-pointer transition shadow-xl text-left flex flex-col justify-between" data-card="Kızgın Mırmır" data-damage="35">
+                        <div>
+                            <div class="text-3xl mb-2">😾</div>
+                            <h4 class="font-bold text-red-300 text-lg">Kızgın Mırmır</h4>
+                            <p class="text-xs text-slate-400 mt-1">Öfkeyle tırmalar, ağır hasar verir.</p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-red-500/30 flex justify-between text-xs font-semibold text-red-400">
+                            <span>Güç: 35</span>
+                            <span>Öfke: Yüksek</span>
+                        </div>
+                    </div>
+
+                    <!-- Kart 2: Tembel Tıfıl -->
+                    <div class="card-item card-hover bg-gradient-to-b from-blue-900/60 to-slate-900 border-2 border-blue-500/50 p-4 rounded-xl cursor-pointer transition shadow-xl text-left flex flex-col justify-between" data-card="Tembel Tıfıl" data-damage="15">
+                        <div>
+                            <div class="text-3xl mb-2">🐱💤</div>
+                            <h4 class="font-bold text-blue-300 text-lg">Tembel Tıfıl</h4>
+                            <p class="text-xs text-slate-400 mt-1">Üzerine yatar, hafif hasar verir.</p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-blue-500/30 flex justify-between text-xs font-semibold text-blue-400">
+                            <span>Güç: 15</span>
+                            <span>Hız: Düşük</span>
+                        </div>
+                    </div>
+
+                    <!-- Kart 3: Mutant Pati (Yeni Eklenen Kart!) -->
+                    <div class="card-item card-hover bg-gradient-to-b from-purple-900/60 to-slate-900 border-2 border-purple-500/50 p-4 rounded-xl cursor-pointer transition shadow-xl text-left flex flex-col justify-between" data-card="Mutant Pati" data-damage="50">
+                        <div>
+                            <div class="text-3xl mb-2">🐾⚡</div>
+                            <h4 class="font-bold text-purple-300 text-lg">Mutant Pati</h4>
+                            <p class="text-xs text-slate-400 mt-1">Gizli güçlerini açığa çıkarır, yıkıcıdır!</p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-purple-500/30 flex justify-between text-xs font-semibold text-purple-400">
+                            <span>Güç: 50</span>
+                            <span>Risk: Çok Yüksek</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase ve Oyun Mantığı (Modüler) -->
+    <!-- Firebase ve Oyun Mantığı -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
         import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
@@ -68,7 +123,6 @@
         let currentRoom = null;
         let myRole = null;
 
-        // Oda Kurma
         document.getElementById('create-btn').addEventListener('click', () => {
             currentRoom = Math.floor(1000 + Math.random() * 9000).toString();
             myRole = 'host';
@@ -84,7 +138,6 @@
             });
         });
 
-        // Odaya Katılma
         document.getElementById('join-btn').addEventListener('click', () => {
             const code = document.getElementById('roomCodeInput').value.trim();
             if (!code) {
@@ -137,9 +190,14 @@
             });
         }
 
-        // Kart Oynama Olayları
-        document.getElementById('card-mirmir').addEventListener('click', () => playCard('Kızgın Mırmır', 35));
-        document.getElementById('card-tifil').addEventListener('click', () => playCard('Tembel Tıfıl', 15));
+        // Tüm kartlara tıklama olayı ekleme
+        document.querySelectorAll('.card-item').forEach(card => {
+            card.addEventListener('click', () => {
+                const cardName = card.getAttribute('data-card');
+                const damage = parseInt(card.getAttribute('data-damage'));
+                playCard(cardName, damage);
+            });
+        });
 
         function playCard(cardName, damage) {
             if (!currentRoom) return;
@@ -151,11 +209,11 @@
                 if (myRole === 'host') {
                     let newGuestHp = data.guestHp - damage;
                     updates.guestHp = newGuestHp < 0 ? 0 : newGuestHp;
-                    updates.lastAction = `Sen (${cardName}) kartını oynadın!`;
+                    updates.lastAction = `Sen (${cardName}) kartını oynadın ve ${damage} hasar vurdun!`;
                 } else {
                     let newHostHp = data.hostHp - damage;
                     updates.hostHp = newHostHp < 0 ? 0 : newHostHp;
-                    updates.lastAction = `Kardeşin (${cardName}) kartını oynadı!`;
+                    updates.lastAction = `Kardeşin (${cardName}) kartını oynadı ve ${damage} hasar vurdu!`;
                 }
 
                 update(ref(db, 'rooms/' + currentRoom), updates);
